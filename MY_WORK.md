@@ -32,10 +32,10 @@
 
 | Field | Your Answer |
 |-------|-------------|
-| **Full Name** | [Write your full name here] |
-| **Student ID** | [Write your student ID here] |
-| **University Email** | [yourid]@std.psau.edu.sa |
-| **GitHub Username** | [your-github-username] |
+| **Full Name** | [ziad almutiri] |
+| **Student ID** | [445050300] |
+| **University Email** | [445050300]@std.psau.edu.sa |
+| **GitHub Username** | [ziad4450] |
 | **Repository Link** | [Paste your repository link here] |
  
 ---
@@ -133,67 +133,86 @@
 ## Your Development Log
 
 ### Entry 1 - [Date and Time]
-**What I did**:
+**What I did**:Forked the repository, set up the Java environment in VS Code, added my student ID, and ran the broken starter code
 
 **Details**:
+- Forked the starter repository on GitHub and renamed it to `OS-Assignment3-ziad-AlMutairi`
+- Cloned the project into VS Code and read `README.md` and `SchedulerSimulationSync.java` completely
+- Updated `int studentID = 445050300;` on line 304 and pushed the first commit (`Set my student ID: 445050300`)
+- Ran the starter code and saved the output showing a `NullPointerException` in `ReadyQueue.snapshot()` along with `MISMATCH` on context switches (expected 24, observed 0), completed processes (expected 10, observed 0), and total service time (expected 56193, observed 0)
 
-**Challenges**:
+**Challenges**:The terminal initially printed garbled characters instead of English digits and the VS Code Java language server threw an OutOfMemory error
 
-**Solution**:
+**Solution**:Installed OpenJDK 21, switched the terminal to UTF-8 with English locale (`chcp 65001` and `-Duser.language=en -Dfile.encoding=UTF-8`), and set the VS Code Java server to LightWeight mode with more memory
 
-**Time spent**:
+**Time spent**:1 hour 15 minutes
 
 ---
 
 ### Entry 2 - [Date and Time]
-**What I did**:
+**What I did**:Implemented Feature 1 by protecting `ReadyQueue` with a `ReentrantLock`
 
 **Details**:
+- Uncommented `import java.util.concurrent.locks.ReentrantLock;` at the top of `SchedulerSimulationSync.java`
+- Added `private final ReentrantLock lock = new ReentrantLock();` inside `ReadyQueue`
+- Protected `add()`, `poll()`, `processOf()`, and `snapshot()` using `lock.lock()` and `try { ... } finally { lock.unlock(); }` while keeping `RaceWindow.pause()` in place
+- Tested the code and pushed the commit: `Feature 1: Protect ReadyQueue with ReentrantLock`
 
-**Challenges**:
+**Challenges**:After editing `ReadyQueue`, a missing closing brace caused a compile error at the bottom of the file, and the simulation still hit the 23-second `WATCHDOG` timeout because `completedProcessCount` lost an update (observing 9 instead of 10)
 
-**Solution**:
+**Solution**:Put back the closing brace of `ReadyQueue` to fix the syntax error and verified that `NullPointerException` was completely gone before moving to `SharedStats` in Feature 2
 
-**Time spent**:
+**Time spent**:55 minutes
 
 ---
 
 ### Entry 3 - [Date and Time]
-**What I did**:
+**What I did**:Implemented Feature 2 using separate `ReentrantLock` instances in `SharedStats`
 
 **Details**:
+- Declared three static locks in `SharedStats`: `contextSwitchLock`, `completedProcessLock`, and `serviceTimeLock`
+- Wrapped all three update methods (`incrementContextSwitch()`, `incrementCompletedProcess()`, `addServiceTime()`) and all three getters (`getContextSwitchCount()`, `getCompletedProcessCount()`, `getTotalServiceTime()`) in `lock()` and `try/finally { unlock(); }`
+- Ran the program and saw context switches (24/24), completed processes (10/10), and total service time (56193/56193) all pass with green checkmarks, leaving only `Busy-waiting polls` at `75`
+- Committed and pushed: `Feature 2: Protect SharedStats counters with ReentrantLock`
 
-**Challenges**:
+**Challenges**:Deciding between a single lock for all three statistics or one lock per variable without risking deadlock
 
-**Solution**:
+**Solution**:Used one lock per variable because the three counters are independent and no method ever holds more than one lock at a time
 
-**Time spent**:
+**Time spent**:50 minutes
 
 ---
 
 ### Entry 4 - [Date and Time]
-**What I did**:
+**What I did**:Implemented Feature 3 by replacing busy-waiting with a counting `Semaphore` and clean shutdown
 
 **Details**:
+- Uncommented `import java.util.concurrent.Semaphore;` and added `private final Semaphore availableProcesses = new Semaphore(0);` in `ReadyQueue`
+- Added `availableProcesses.release();` inside `ReadyQueue.add()` whenever a process is added to the queue
+- Added `waitForProcess()` (`acquire()`) and `releaseAllCpus(int numCpus)` (`release(numCpus)`) in `ReadyQueue`, and updated `CpuWorker.run()` to block on the semaphore and exit cleanly if `poll()` returns `null`
+- Tested the program and confirmed all 4 verification checks passed (`Busy-waiting polls: expected 0, observed 0 ✓`), then pushed: `Feature 3: Replace busy-waiting with counting Semaphore and clean shutdown`
 
-**Challenges**:
+**Challenges**:Making sure `CpuWorker` threads blocked on `acquire()` terminate cleanly after the 10th process finishes instead of hanging forever
 
-**Solution**:
+**Solution**:Added a check in `CpuWorker.run()` so the CPU that finishes the last process (`completedProcessCount == totalProcesses`) calls `readyQueue.releaseAllCpus(SharedStats.totalCPUs)`
 
-**Time spent**:
+**Time spent**:1 hour 10 minutes
 
 ---
 
 ### Entry 5 - [Date and Time]
-**What I did**:
+**What I did**:Completed `MY_WORK.md`, verified 5 consecutive runs, and recorded the demo video
 
 **Details**:
+- Filled in my student information, development log, reflection answers, and technical answers using my actual outputs for seed `445050300`
+- Ran `SchedulerSimulationSync` 5 times in a row in VS Code and verified all four verification lines showed `✓` on every run
+- Checked the commit history on GitHub and recorded the 2–3 minute video demonstration
 
-**Challenges**:
+**Challenges**:Making sure every answer matched my exact terminal outputs and followed the required sentence counts
 
-**Solution**:
+**Solution**:Double-checked all numbers against my saved outputs and reviewed every item on the final checklist before pushing
 
-**Time spent**:
+**Time spent**:50 minutes
 
 ---
 
@@ -214,13 +233,13 @@
 
 > 💡 **TIP:** Fill this in **last**, after all entries are written.
 
-**Total time spent on assignment**: [X hours]
+**Total time spent on assignment**: [5 hours]
 
-**Most challenging part**:
+**Most challenging part**:Designing the clean shutdown wake-up for `CpuWorker` threads blocked on the counting `Semaphore` in Feature 3 so no CPU stayed stuck waiting after the last process completed.
 
-**Most interesting learning**:
+**Most interesting learning**:Seeing firsthand how `RaceWindow.pause()` exposes read-modify-write race conditions and list corruption (`NullPointerException`), and watching each `MISMATCH` turn into a green checkmark step by step.
 
-**What I would do differently next time**:
+**What I would do differently next time**:Fix the terminal UTF-8 encoding and IDE Java memory settings before running the starter code, and write each log entry right after pushing its commit.
 
 ---
 
@@ -240,7 +259,7 @@
 
 **Your Answer:** *(5-7 sentences)*
 
-[Write your answer here.]
+[Working on this assignment showed me how fast shared data breaks when multiple threads access it without synchronization. When I first ran the starter code with my student ID 445050300, the CPU threads accessed `ReadyQueue` at the same time and threw a `NullPointerException` inside `ReadyQueue.snapshot()`. Adding a `ReentrantLock` with `try` and `finally` blocks around the queue methods and the counters in `SharedStats` stopped the race conditions even with `RaceWindow.pause()` still in the code. I also saw how wasteful busy-waiting is because the CPUs kept polling an empty queue 75 times before I added the semaphore. Switching to a counting `Semaphore` initialized to 0 let idle CPU threads sleep until a process was actually added to the queue. Finally, I learned that waking up blocked threads with `releaseAllCpus` at the end is necessary so the program can exit cleanly without hanging.]
 
 ## Question 2: What was the most challenging part of this assignment?
 
@@ -248,7 +267,7 @@
 
 **Your Answer:** *(5-7 sentences)*
 
-[Write your answer here.]
+[The hardest part of this assignment for me was figuring out how to shut down all the `CpuWorker` threads cleanly after adding the counting semaphore in Feature 3. Once I replaced the polling loop with `availableProcesses.acquire()`, the busy-waiting stopped, but any CPU waiting on `acquire()` after the 10th process finished stayed blocked forever. If I woke those threads up without checking the return value of `readyQueue.poll()`, they would try to use a `null` thread reference and crash. To fix this, I checked if `SharedStats.getCompletedProcessCount() == SharedStats.totalProcesses` when a process finished and called `readyQueue.releaseAllCpus(SharedStats.totalCPUs)`. Then inside the loop, if `readyQueue.poll()` returned `null`, the CPU simply broke out of the `while` loop and terminated safely.]
 
 ## Question 3: How did you overcome the challenges you faced?
 
@@ -256,7 +275,7 @@
 
 **Your Answer:** *(5-7 sentences)*
 
-[Write your answer here.]
+[I solved the problems in this assignment by implementing one feature at a time and testing the output after every small change. At the start, my terminal printed broken characters instead of numbers and VS Code ran out of memory, so I fixed the UTF-8 encoding and Java server settings first to read the verification block clearly. After adding the lock in `ReadyQueue` for Feature 1, I ran the code and saw that the `NullPointerException` was gone, even though `SharedStats` was still losing updates. Next, I protected the counters in `SharedStats` for Feature 2 and verified that context switches (24), completed processes (10), and service time (56193 ms) all matched my expected seed values. Finally, I tested Feature 3 several times in a row to make sure busy-waiting polls dropped from 75 to 0 and all four checks passed every time.]
 
 ## Question 4: Where can synchronization concepts be applied in real-world applications?
 
@@ -264,7 +283,7 @@
 
 **Your Answer:** *(5-7 sentences)*
 
-[Write your answer here.]
+[Synchronization is essential in banking apps where two transfers or ATM withdrawals might try to update the same account balance at the exact same time. Just like `SharedStats` lost increments before Feature 2, an unprotected balance update could overwrite a withdrawal and cause incorrect account totals. Airline and cinema seat booking systems also need mutex locks so two customers cannot book the last remaining seat simultaneously. In addition, web servers and shared network printers work like our `ReadyQueue` by using semaphores to manage request queues so worker threads wait efficiently when there are no jobs. Using `try` and `finally` blocks to release locks in these applications also ensures that an error in one request never freezes the whole system.]
 
 ### Optional: What would you like to learn more about?
 
@@ -298,20 +317,54 @@
 
 **Your Answer:** *(3-5 sentences)*
 
-[Write your answer here.]
+[In my baseline starter run with student ID `445050300`, the program crashed with a `NullPointerException` in `ReadyQueue.snapshot()` before any process finished, leaving context switches (expected 24), completed processes (expected 10), and service time (expected 56193 ms) all at `0`. Even after I fixed `ReadyQueue` in Feature 1, the unprotected counters in `SharedStats` lost an update so `completedProcessCount` stopped at `9` instead of `10` and triggered the 23-second `WATCHDOG`. On a real multi-core CPU without `RaceWindow.pause()`, OS thread preemption can still switch threads between a read and a write, which makes race conditions unpredictable and hard to catch during normal testing.
+
+Verification block of the **original starter**:
+```text
+java.lang.NullPointerException: Cannot read field "next" because "this.next" is null
+        at java.base/java.util.LinkedList$ListItr.next(LinkedList.java:904)
+        at ReadyQueue.snapshot(SchedulerSimulationSync.java:151)
+        at CpuWorker.run(SchedulerSimulationSync.java:280)
+
+=== VERIFICATION (expected values are computed from YOUR seed) ===
+  Context switches (quanta executed)     expected 24       observed 0        ✗ MISMATCH
+  Completed processes                    expected 10       observed 0        ✗ MISMATCH
+  Total service time (ms)                expected 56193    observed 0        ✗ MISMATCH
+  Busy-waiting polls (must be 0)         expected 0        observed 0        ✓
+  ✗ At least one check failed (see the ✗ lines above): a race condition or busy waiting is still present.]
 
 Verification block of the **original starter**:
 ```
-[Paste the verification block (or the exception/watchdog message) of the starter here]
+[java.lang.NullPointerException: Cannot read field "next" because "this.next" is null
+        at java.base/java.util.LinkedList$ListItr.next(LinkedList.java:904)
+        at ReadyQueue.snapshot(SchedulerSimulationSync.java:151)
+        at CpuWorker.run(SchedulerSimulationSync.java:280)
+
+=== VERIFICATION (expected values are computed from YOUR seed) ===
+  Context switches (quanta executed)     expected 24       observed 0        ✗ MISMATCH
+  Completed processes                    expected 10       observed 0        ✗ MISMATCH
+  Total service time (ms)                expected 56193    observed 0        ✗ MISMATCH
+  Busy-waiting polls (must be 0)         expected 0        observed 0        ✓
+  ✗ At least one check failed (see the ✗ lines above): a race condition or busy waiting is still present.]
 ```
 
 Verification block of **my final version**:
 ```
-[Paste the verification block of your final version here (all lines ✔)]
+[Context switches (quanta executed)     expected 24       observed 24       ✓
+  Completed processes                    expected 10       observed 10       ✓
+  Total service time (ms)                expected 56193    observed 56193    ✓
+  Busy-waiting polls (must be 0)         expected 0        observed 0        ✓
+  ✓ All shared values are consistent.]
 ```
 
 **Explanation of the timeline:**
-[Explain the lost update step by step.]
+[CPU-1 finishes the 9th process, enters SharedStats.incrementCompletedProcess(), and reads tmp = completedProcessCount (8).
+
+CPU-1 hits RaceWindow.pause() and is preempted before writing back the incremented value.
+
+CPU-2 finishes the 10th process at the same time, reads the stale value tmp = completedProcessCount (8), pauses, and writes completedProcessCount = 9.
+
+CPU-1 resumes and overwrites completedProcessCount with 8 + 1 = 9, losing one completion update so completedProcessCount < 10 stays true until the WATCHDOG stops the simulation.]
 
 ## Question 2: Critical Sections and Lock Granularity
 
@@ -321,7 +374,7 @@ Verification block of **my final version**:
 
 **Your Answer:** *(3-5 sentences)*
 
-[Write your answer here.]
+[I protected the shared LinkedList and HashMap in ReadyQueue (add, poll, processOf, and snapshot) with a ReentrantLock named lock, and I protected the three counters in SharedStats with three separate locks (contextSwitchLock, completedProcessLock, and serviceTimeLock). I used one lock per variable in SharedStats because the three counters are updated independently, which avoids unnecessary contention between CPUs while keeping ReadyQueue on its own lock prevents queue operations from delaying statistics updates or causing lock-ordering deadlocks. Mutual exclusion is enforced because only one thread can acquire each ReentrantLock at a time, progress is guaranteed by unlocking in finally blocks, and even though a default non-fair ReentrantLock does not guarantee strict FIFO bounded waiting, the critical sections are very short so threads never starve.]
 
 | Critical section (variable / method) | Lock used | Why it needs protection |
 |---|---|---|
@@ -336,7 +389,7 @@ Verification block of **my final version**:
 
 **Your Answer:** *(3-5 sentences)*
 
-[Write your answer here.]
+[In the starter code, CPUs kept calling poll() and sleeping 20 ms whenever the ready queue was empty, wasting CPU cycles and producing 75 busy-waiting polls after Features 1 and 2 (which dropped to 0 after Feature 3). My counting semaphore availableProcesses tracks how many processes are currently waiting in ReadyQueue, so it starts at 0 because the queue is initially empty and becomes 10 right after main() adds the 10 initial processes. When the last process finishes, the CPU that completed it calls readyQueue.releaseAllCpus(SharedStats.totalCPUs) so all CPUs blocked on acquire() wake up, see null from poll(), and exit cleanly instead of waiting forever.]
 
 ## Question 4: Classical Problems and Deadlock
 
@@ -347,24 +400,24 @@ Verification block of **my final version**:
 **Your Answer:** *(3-5 sentences)*
 
 **Classical problem and roles**:
-[Name the problem; who is the producer, who is the consumer?]
+This simulation models the **Producer–Consumer (Bounded-Buffer)** problem, where `main()` (at startup) and `CpuWorker` threads re-enqueuing unfinished processes act as **producers**, while `CpuWorker` threads polling processes from `ReadyQueue` to execute a quantum act as **consumers**.
 
 **Semaphores for a bounded queue (name and initial value)**:
-[Name the three semaphores and their initial values.]
+For a bounded ready queue of capacity `K`, we need three semaphores: `empty = K` (counting free slots), `full = 0` (counting waiting processes), and `mutex = 1` (a binary semaphore providing mutual exclusion).
 
 **Deadlock scenario and prevention**:
-[Describe the scenario and the necessary condition you would break.]
+If a producer acquired `mutex` before calling `empty.acquire()` when the queue was full, it would block while holding `mutex`, preventing any consumer from acquiring `mutex` to remove a process and call `empty.release()`, resulting in a **deadlock**. Always calling `acquire()` on `empty` or `full` before acquiring `mutex` prevents this deadlock by breaking the **Hold and Wait** (and **Circular Wait**) condition.
 
 ## Summary
 
 **Key concepts I understood through these questions:**
-1.
-2.
-3.
+1. How read-modify-write race conditions and unsynchronized data structures cause lost updates and `NullPointerException` crashes.
+2. How `ReentrantLock` with `try/finally` enforces mutual exclusion and how one lock per variable reduces contention on independent counters.
+3. How counting semaphores eliminate busy waiting in Producer–Consumer systems and why a shutdown release signal is needed to wake blocked threads.
 
 **Concepts I need to study more:**
-1.
-2.
+1. Fair locks (`new ReentrantLock(true)`) and starvation trade-offs under heavy CPU contention.
+2. Deadlock detection and lock-ordering rules in larger multi-resource systems.
 
 ---
 
